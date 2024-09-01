@@ -1,37 +1,41 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const admin = require('firebase-admin');
+const serviceAccount = require('./path/to/your/serviceAccountKey.json'); // JSON 파일 경로
+
 const app = express();
-const PORT = process.env.PORT || 10000;  // Render에서 사용되는 포트
+const PORT = process.env.PORT || 3000;
 
-// Firebase Admin SDK 초기화
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-
+// Firebase Admin 초기화
 admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: 'https://myflaskapp-37e05.asia-northeast3.firebasedatabase.app'
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: 'https://myflaskapp-37e05-default-rtdb.firebaseio.com/' // 자신의 Firebase Realtime Database URL
 });
 
-const db = admin.firestore();
+const db = admin.database();
 
 app.use(bodyParser.json());
 
+// Handle GET requests to the root URL
 app.get('/', (req, res) => {
     res.send('Welcome to the chat logger server!');
 });
 
-app.post('/log', async (req, res) => {
+// Handle POST requests to /log
+app.post('/log', (req, res) => {
     const { PlayerName, Message } = req.body;
-    const logEntry = { Player: PlayerName, Message: Message };
+    const logEntry = {
+        PlayerName: PlayerName,
+        Message: Message
+    };
 
-    try {
-        await db.collection('chat-logs').add(logEntry);
-        console.log('Log entry recorded:', logEntry);
-        res.status(200).send('Log entry recorded');
-    } catch (error) {
-        console.error('Failed to save log to Firestore:', error);
-        res.status(500).send('Internal Server Error');
-    }
+    // Firebase Realtime Database에 로그 저장
+    db.ref('logs').push(logEntry)
+        .then(() => res.status(200).send('Log entry recorded'))
+        .catch(error => {
+            console.error('Failed to write log:', error);
+            res.status(500).send('Internal Server Error');
+        });
 });
 
 app.listen(PORT, () => {
