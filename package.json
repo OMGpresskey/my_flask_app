@@ -1,0 +1,14 @@
+{
+    "name": "my-flask-app",
+    "version": "1.0.0",
+    "description": "A simple chat logger application",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "dependencies": {
+        "aws-sdk": "^2.1687.0",
+        "express": "^4.17.1",
+        "firebase-admin": "^12.4.0"
+    }
+}
