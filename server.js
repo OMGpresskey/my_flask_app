@@ -1,10 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const admin = require('firebase-admin');
-const serviceAccount = require('./path/to/your/serviceAccountKey.json'); // JSON 파일 경로
+
+// 환경 변수에서 Firebase 서비스 계정 키를 가져옵니다.
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000; // Render에서 포트는 10000으로 설정됨
 
 // Firebase Admin 초기화
 admin.initializeApp({
